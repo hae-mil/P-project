@@ -7,14 +7,14 @@ import AuthModal from '../components/AuthModal';
 
 export default function SignupScreen({ navigation }) {
   const [name, setName] = useState('');
-  const [id, setId] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
   const [authModal, setAuthModal] = useState({ isOpen: false, type: 'success', message: '', onConfirm: null });
 
   const handleSignup = async () => {
-    if (!name || !id || !password) {
+    if (!name || !username || !password) {
       setAuthModal({ isOpen: true, type: 'fail', message: '모든 정보를 입력해주세요.' });
       return;
     }
@@ -23,7 +23,8 @@ export default function SignupScreen({ navigation }) {
       return;
     }
 
-    const result = await signupAPI({ id, password, name });
+    const result = await signupAPI({ username, password, name });
+    
     if (result.success) {
       setAuthModal({
         isOpen: true, 
@@ -31,7 +32,7 @@ export default function SignupScreen({ navigation }) {
         message: '회원가입이 완료되었습니다.\n로그인해주세요.',
         onConfirm: () => {
           setAuthModal(prev => ({ ...prev, isOpen: false }));
-          navigation.goBack(); // 로그인 화면으로 돌아가기
+          navigation.goBack(); 
         }
       });
     }
@@ -39,7 +40,6 @@ export default function SignupScreen({ navigation }) {
 
   return (
     <SafeAreaView style={COMMON_STYLES.container}>
-      {/* 헤더 */}
       <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: COLORS.surface }}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ padding: 8 }}>
           <ArrowLeft size={24} color={COLORS.text} />
@@ -56,7 +56,13 @@ export default function SignupScreen({ navigation }) {
           <TextInput style={COMMON_STYLES.input} placeholder="홍길동" value={name} onChangeText={setName} />
 
           <Text style={COMMON_STYLES.label}>아이디</Text>
-          <TextInput style={COMMON_STYLES.input} placeholder="아이디 입력" value={id} onChangeText={setId} autoCapitalize="none" />
+          <TextInput 
+            style={COMMON_STYLES.input} 
+            placeholder="아이디 입력" 
+            value={username}       
+            onChangeText={setUsername}
+            autoCapitalize="none" 
+          />
 
           <Text style={COMMON_STYLES.label}>비밀번호</Text>
           <TextInput style={COMMON_STYLES.input} placeholder="비밀번호 입력" secureTextEntry value={password} onChangeText={setPassword} />

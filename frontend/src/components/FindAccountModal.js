@@ -4,13 +4,13 @@ import { X, CheckCircle2, AlertCircle } from 'lucide-react-native';
 import { COLORS, COMMON_STYLES } from '../theme';
 
 export default function FindAccountModal({ isOpen, onClose }) {
-  const [tab, setTab] = useState('id');
+  const [tab, setTab] = useState('username'); 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [result, setResult] = useState(null);
 
   useEffect(() => {
-    if (isOpen) { setTab('id'); setResult(null); setName(''); setPhone(''); }
+    if (isOpen) { setTab('username'); setResult(null); setName(''); setPhone(''); }
   }, [isOpen]);
 
   const handleFind = () => {
@@ -19,7 +19,7 @@ export default function FindAccountModal({ isOpen, onClose }) {
       return;
     }
     // Mock Logic
-    if (tab === 'id') {
+    if (tab === 'username') {
       setResult({ type: 'success', msg: `회원님의 아이디는\n[ park123 ] 입니다.` });
     } else {
       setResult({ type: 'success', msg: `임시 비밀번호를\n문자로 발송했습니다.` });
@@ -37,10 +37,17 @@ export default function FindAccountModal({ isOpen, onClose }) {
 
           {/* 탭 버튼 */}
           <View style={styles.tabContainer}>
-            <TouchableOpacity onPress={() => { setTab('id'); setResult(null); }} style={[styles.tab, tab === 'id' && styles.tabActive]}>
-              <Text style={[styles.tabText, tab === 'id' && styles.tabTextActive]}>아이디 찾기</Text>
+            <TouchableOpacity 
+              onPress={() => { setTab('username'); setResult(null); }} 
+              style={[styles.tab, tab === 'username' && styles.tabActive]}
+            >
+              <Text style={[styles.tabText, tab === 'username' && styles.tabTextActive]}>아이디 찾기</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => { setTab('pw'); setResult(null); }} style={[styles.tab, tab === 'pw' && styles.tabActive]}>
+            
+            <TouchableOpacity 
+              onPress={() => { setTab('pw'); setResult(null); }} 
+              style={[styles.tab, tab === 'pw' && styles.tabActive]}
+            >
               <Text style={[styles.tabText, tab === 'pw' && styles.tabTextActive]}>비밀번호 찾기</Text>
             </TouchableOpacity>
           </View>
@@ -53,7 +60,7 @@ export default function FindAccountModal({ isOpen, onClose }) {
               <TextInput style={COMMON_STYLES.input} placeholder="010-0000-0000" keyboardType="phone-pad" value={phone} onChangeText={setPhone} />
               
               <TouchableOpacity style={COMMON_STYLES.buttonPrimary} onPress={handleFind}>
-                <Text style={COMMON_STYLES.buttonText}>{tab === 'id' ? '아이디 찾기' : '비밀번호 재설정'}</Text>
+                <Text style={COMMON_STYLES.buttonText}>{tab === 'username' ? '아이디 찾기' : '비밀번호 재설정'}</Text>
               </TouchableOpacity>
             </View>
           ) : (

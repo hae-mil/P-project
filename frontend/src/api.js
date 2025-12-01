@@ -1,37 +1,75 @@
-const BASE_URL = 'http://your-api-server.com'; // 실제 서버 주소로 변경 필요
+// 👇 실제 서버 주소
+const BASE_URL = 'http://your-real-server-ip.com'; 
 
-// P2: 로그인 (JWT 발급)
-export const loginAPI = async (id, password) => {
-  console.log(`[API] 로그인 요청: ${id}`);
-  // 실제 연동 시:
-  // const response = await fetch(`${BASE_URL}/api/v1/auth/login`, {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ id, password }),
-  // });
-  // return response.json();
+const request = async (endpoint, options = {}) => {
+  try {
+    const url = `${BASE_URL}${endpoint}`;
+    console.log(`📡 요청 보냄: ${url}`);
 
-  // Mock 응답
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (id && password) resolve({ success: true, token: 'dummy-jwt-token', user: { name: '박성민' } });
-      else resolve({ success: false, message: '아이디와 비밀번호를 확인해주세요.' });
-    }, 500);
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      ...options,
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || '서버 통신 오류');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('🚨 API 에러:', error);
+    return { success: false, message: error.message || '네트워크 연결 실패' };
+  }
+};
+
+// =================================================================
+// 1. 로그인 API (username 사용)
+// =================================================================
+export const loginAPI = async (username, password) => {
+  return request('/api/v1/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ username, password }),
   });
 };
 
-// P1: 회원가입
+// =================================================================
+// 2. 회원가입 API
+// =================================================================
 export const signupAPI = async (userData) => {
-  console.log(`[API] 회원가입 요청:`, userData);
-  // POST /api/v1/auth/signup
-  return new Promise((resolve) => {
-    setTimeout(() => resolve({ success: true }), 500);
+  // userData 안에는 { username, password, name } 이 들어있어야 함
+  return request('/api/v1/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify(userData),
   });
 };
 
-// P3: 로그아웃
+// =================================================================
+// 3. 로그아웃 API
+// =================================================================
 export const logoutAPI = async () => {
-  console.log(`[API] 로그아웃 요청`);
-  // POST /api/v1/auth/logout
-  return true;
+  return request('/api/v1/auth/logout', {
+    method: 'POST',
+  });
+};
+
+// =================================================================
+// 4. 홈 화면 데이터
+// =================================================================
+export const getHomeSummaryAPI = async () => {
+  return request('/api/v1/home/summary', {
+    method: 'GET',
+  });
+};
+
+// =================================================================
+// 5. 일정 목록
+// =================================================================
+export const getSchedulesAPI = async (date) => {
+  return request(`/api/v1/calendar/events?date=${date}`, {
+    method: 'GET',
+  });
 };
