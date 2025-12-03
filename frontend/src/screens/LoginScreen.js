@@ -1,4 +1,4 @@
-// src/screens/LoginScreen.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,6 +21,9 @@ export default function LoginScreen({ navigation }) {
 
     // 2. 결과 처리
     if (result.success) {
+      if (result.data.token) {
+        await AsyncStorage.setItem('userToken', result.data.token);
+      }
       // 성공 시 모달 띄우기 (데이터 경로 변경됨: result.data.username)
       const welcomeName = result.data?.username || username;
       setAuthModal({ isOpen: true, type: 'success', message: `${welcomeName}님 환영합니다!` });

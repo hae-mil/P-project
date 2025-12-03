@@ -1,22 +1,30 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // - 안드로이드 에뮬레이터 사용 시: "http://10.0.2.2:8080"
 // - 실제 스마트폰 사용 시: "http://192.168.x.x:8080" (컴퓨터의 IP주소)
 const BASE_URL = "http://10.0.2.2:8080"; 
 
 /**
  * 공통 API 요청 처리 함수
- * - 모든 요청에 대한 헤더 설정, 에러 처리, JSON 파싱을 담당합니다.
  */
 const request = async (endpoint, options = {}) => {
   try {
     const url = `${BASE_URL}${endpoint}`;
     console.log(`📡 [API 요청] ${options.method || 'GET'} ${url}`);
 
+    const token = await AsyncStorage.getItem('userToken');
+
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers, // 개별 요청에서 보낸 헤더가 있다면 병합
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        // 필요하다면 여기에 인증 토큰 추가: 'Authorization': `Bearer ${token}`
-      },
       ...options,
+      headers,
     });
 
     // 응답 바디가 비어있거나 JSON이 아닐 경우를 대비한 안전한 파싱
