@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, ActivityIndicator, Platform,Alert } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'; 
-import { ArrowLeft, Bookmark, Bot, X, Calendar as CalendarIcon, Phone, Sparkles } from 'lucide-react-native';
+import { ArrowLeft, Bookmark, Bot, Calendar as CalendarIcon, Phone, Sparkles, X } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  createBookmarkAPI,
+  createScheduleAPI,
+  deleteBookmarkAPI,
+  getPolicyAIResultAPI,
+  getPolicyDetailAPI
+} from '../api';
 import { COLORS } from '../theme';
-import { getPolicyDetailAPI, getPolicyAIResultAPI,
-        createBookmarkAPI,
-        deleteBookmarkAPI,
-      } from '../api';
 
 export default function PolicyDetailScreen({ navigation, route }) {
   const { policyId } = route.params;
@@ -91,6 +94,52 @@ export default function PolicyDetailScreen({ navigation, route }) {
     Alert.alert('오류', '북마크 처리 중 오류가 발생했습니다.');
   }
 };
+
+  // 혹은 실제 변수명에 맞게 수정
+
+   const handleAddSchedule = async () => {
+  try {
+    // data / policy 가 없으면 바로 막기
+    if (!data?.policy?.title) {
+      Alert.alert('오류', '정책 제목 정보를 불러오지 못했습니다.');
+      return;
+    }
+
+    // ✅ 오늘 날짜 "YYYY-MM-DD"
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+
+    // ✅ 일단 고정 시간 (나중에 time picker 붙여도 됨)
+    const timeStr = '10:00';
+
+    // 🔒 title 을 항상 null 이 아닌 값으로
+    const safeTitle = data.policy.title || '복지 신청 일정';
+
+    console.log('[일정 추가] policyId=', policyId, ' title=', safeTitle);
+
+    // 🛰 실제 캘린더 일정 추가 API 호출
+    const result = await createScheduleAPI(dateStr, timeStr, safeTitle);
+
+    if (!result.success) {
+      Alert.alert(
+        '일정 추가 실패',
+        result.message || '일정을 추가하는 중 오류가 발생했습니다.'
+      );
+      return;
+    }
+
+    // ✅ 예전처럼 알림창 띄우기
+    Alert.alert('알림', '일정에 추가되었습니다!');
+
+  } catch (e) {
+    console.error('일정 추가 중 에러:', e);
+    Alert.alert('오류', '네트워크 오류가 발생했습니다.');
+  }
+};
+
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
   if (!data || !data.policy) return <View style={styles.center}><Text>정보를 불러올 수 없습니다.</Text></View>;
 
@@ -215,7 +264,7 @@ export default function PolicyDetailScreen({ navigation, route }) {
                   })}
                 </View>
 
-                <TouchableOpacity style={styles.actionButton} onPress={() => alert('일정에 추가되었습니다!')}>
+                <TouchableOpacity style={styles.actionButton} onPress={handleAddSchedule}>
                   <CalendarIcon size={20} color="white" />
                   <Text style={styles.actionText}>내 일정에 추가하기</Text>
                 </TouchableOpacity>
