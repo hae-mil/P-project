@@ -4,10 +4,14 @@ import AI_Secretary.domain.policyData.PolicyChangeLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Repository
 public interface PolicyChangeLogRepository extends JpaRepository<PolicyChangeLog, Long> {
 
-    // 아직 리포트/알림에 사용 안 된 로그만 가져오고 싶으면,
-    // isReported 같은 컬럼 추가 후 이렇게 확장 가능:
-    // List<PolicyChangeLog> findByIsReportedFalse();
+
+    long countByChangedAtBetween(LocalDateTime from, LocalDateTime to);
+
+    List<PolicyChangeLog> findTop10ByOrderByChangedAtDesc();
 }

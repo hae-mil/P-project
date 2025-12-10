@@ -6,29 +6,37 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
 
+@Entity
+@Table(name = "notification")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "notification")
 public class Notification {
+
+    public enum NotificationType {
+        NEW_POLICY,
+        CHANGE_POLICY,
+        SYSTEM
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 알림을 받는 사용자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private users user;
 
-    @Column(name = "notification_type", nullable = false, length = 50)
-    private String notificationType;   // ex) POLICY_CHANGE, GENERAL ...
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", length = 50, nullable = false)
+    private NotificationType type;
 
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String title;
 
-    @Column(name = "message", columnDefinition = "MEDIUMTEXT")
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String message;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,11 +44,21 @@ public class Notification {
     private PolicyChangeReport policyChangeReport;
 
     @Column(name = "is_read", nullable = false)
-    private Boolean isRead;
+    private boolean read;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "read_at")
     private LocalDateTime readAt;
+
+    @PrePersist
+    public void onCreate() {
+        if (createdAt == null) createdAt = LocalDateTime.now();
+    }
+
+    public void markAsRead() {
+        this.read = true;
+        this.readAt = LocalDateTime.now();
+    }
 }

@@ -1,10 +1,12 @@
 package AI_Secretary.controller;
 
+import AI_Secretary.DTO.AiDTO.AiGuideResponse;
 import AI_Secretary.DTO.SearchDTO.PolicyDetailResponse;
 import AI_Secretary.Security.CustomUserDetails;
 import AI_Secretary.domain.user.UserProfile;
 import AI_Secretary.repository.User.UserProfileRepository;
-import AI_Secretary.service.PolicyQueryService;
+import AI_Secretary.service.Ai.AiGuideService;
+import AI_Secretary.service.Menu.PolicyQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +19,7 @@ public class PolicyController {
 
     private final PolicyQueryService policyQueryService;
     private final UserProfileRepository userProfileRepository;  // 🔥 추가
+    private final AiGuideService aiGuideService;
 
     @GetMapping("/recommended")
     public ResponseEntity<?> getRecommended(
@@ -55,5 +58,13 @@ public class PolicyController {
     ) {
         Long userId = userDetails != null ? userDetails.getUserId() : null;
         return policyQueryService.getPolicyDetail(policyId, userId);
+    }
+    //ai 신청 도우미
+    @GetMapping("/{policyId}/ai-result")
+    public ResponseEntity<AiGuideResponse> getAiResult(
+            @PathVariable Long policyId
+    ) {
+        AiGuideResponse res = aiGuideService.getAiGuideForPolicy(policyId);
+        return ResponseEntity.ok(res);
     }
 }

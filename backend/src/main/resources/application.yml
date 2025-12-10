@@ -24,6 +24,9 @@ spring:
     time-zone: Asia/Seoul
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
+  ai:
+    server:
+      base-url: http://127.0.0.1:8000
 
 security:
   jwt:
